@@ -1,5 +1,6 @@
 /* Arrière-plan général */
 body {
+  font-family: 'Happy Monkey', 'Comic Sans MS', cursive;
   background-image: url("../media/Hutte.png");
   background-size: cover;
   background-position: center;

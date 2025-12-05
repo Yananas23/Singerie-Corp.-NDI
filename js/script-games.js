@@ -257,6 +257,10 @@ function renderEnd(){
         class="bg-blue-500 text-white px-6 py-3 rounded-xl text-xl hover:bg-blue-600">
         Rejouer
       </button>
+      <button onclick="window.location.href='../index.html'"
+        class="bg-green-500 text-white px-6 py-3 rounded-xl text-xl hover:bg-green-600">
+        Retour au village
+      </button>
     </div>
   `;
 
