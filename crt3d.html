@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Visualizer Retro CRT ++</title>
+    <style>
+      body {
+        margin: 0;
+        background: black;
+        overflow: hidden;
+        font-family: monospace;
+        color: #0f0;
+      }
+      #fileZone {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        padding: 10px 20px;
+        background: rgba(0, 0, 0, 0.6);
+        border: 1px solid #0f0;
+        border-radius: 8px;
+        z-index: 5;
+      }
+
+      #volumeSlider {
+        width: 150px;
+        margin: 10px 10px 10px 0;
+      }
+
+      #timeControls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 10px 0;
+      }
+
+      #timeStamp {
+        flex: 1;
+        min-width: 150px;
+        margin: 0;
+      }
+
+      #timeDisplay {
+        font-size: 12px;
+        color: #0f0;
+        white-space: nowrap;
+        min-width: 80px;
+      }
+
+      input[type="range"] {
+        appearance: none;
+        -webkit-appearance: none;
+        height: 5px;
+        background: rgba(0, 200, 255, 0.2);
+        outline: none;
+        border-radius: 3px;
+      }
+
+      input[type="range"]::-webkit-slider-thumb {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 12px;
+        height: 12px;
+        background: #0f0;
+        cursor: pointer;
+        border-radius: 50%;
+        box-shadow: 0 0 5px #0f0;
+      }
+
+      input[type="range"]::-moz-range-thumb {
+        width: 12px;
+        height: 12px;
+        background: #0f0;
+        cursor: pointer;
+        border-radius: 50%;
+        border: none;
+        box-shadow: 0 0 5px #0f0;
+      }
+
+      canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      /* Bouton retour style rétro */
+      #btnRetour {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        padding: 10px 20px;
+        background: rgba(0, 255, 0, 0.1);
+        border: 2px solid #0f0;
+        border-radius: 8px;
+        color: #0f0;
+        font-family: monospace;
+        font-size: 14px;
+        cursor: pointer;
+        text-decoration: none;
+        z-index: 10;
+        transition: all 0.3s;
+        box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+      }
+
+      #btnRetour:hover {
+        background: rgba(0, 255, 0, 0.2);
+        box-shadow: 0 0 20px rgba(0, 255, 0, 0.6);
+        text-shadow: 0 0 5px #0f0;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Bouton retour -->
+    <a href="index.html" id="btnRetour">🛖 RETOUR</a>
+    
+    <div id="fileZone">
+      <input type="file" id="fileInput" accept="audio/*" />
+      <button id="playPauseBtn">Play</button>
+      <input
+        type="range"
+        id="volumeSlider"
+        min="0"
+        max="1"
+        step="0.01"
+        value="0.7"
+      />
+      <div id="timeControls">
+        <input type="range" id="timeStamp" value="0" step="0.5" min="0" />
+        <div id="timeDisplay">0:00 / 0:00</div>
+      </div>
+    </div>
+    <canvas id="canvas"></canvas>
+    <script>
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const buffer = document.createElement("canvas");
+      const bctx = buffer.getContext("2d");
+      buffer.width = canvas.width;
+      buffer.height = canvas.height;
+
+      let stars = [];
+      let particles = [];
+      let audioCtx, analyser, freqArray, audioSource, gainNode;
+      let t = 0;
+      let currentTime = 0;
+      let duration = 0;
+      let audioBuffer = null;
+
+      // 🆕 Variables pour un vrai timing audio
+      let startTime = 0;
+      let offset = 0;
+
+      const playPauseBtn = document.getElementById("playPauseBtn");
+      const volumeSlider = document.getElementById("volumeSlider");
+      const timeStampInput = document.getElementById("timeStamp");
+      const timeDisplay = document.getElementById("timeDisplay");
+
+      const rotatingImage = new Image();
+      rotatingImage.src = "media/singeVinyle.png";
+      let rotationAngle = 0;
+
+
+      function formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+      }
+
+      function updateTimeDisplay() {
+        const curr = formatTime(currentTime);
+        const dur = formatTime(duration);
+        timeDisplay.textContent = `${curr} / ${dur}`;
+      }
+
+      playPauseBtn.addEventListener("click", () => {
+        if (!audioCtx) return;
+        if (audioCtx.state === "running") {
+          audioCtx.suspend();
+          playPauseBtn.textContent = "Play";
+        } else {
+          audioCtx.resume();
+          playPauseBtn.textContent = "Pause";
+        }
+      });
+
+      volumeSlider.addEventListener("input", () => {
+        if (gainNode) {
+          gainNode.gain.value = volumeSlider.value;
+        }
+      });
+
+      // 🆕 Fix complet du SEEK
+      timeStampInput.addEventListener("input", () => {
+        if (!audioCtx || !audioBuffer) return;
+
+        const newTime = parseFloat(timeStampInput.value);
+
+        try {
+          audioSource.stop();
+        } catch {}
+
+        audioSource = audioCtx.createBufferSource();
+        audioSource.buffer = audioBuffer;
+        audioSource.connect(gainNode);
+        gainNode.connect(analyser);
+        analyser.connect(audioCtx.destination);
+
+        offset = newTime;
+        startTime = audioCtx.currentTime;
+
+        audioSource.start(0, newTime);
+
+        currentTime = newTime;
+        updateTimeDisplay();
+      });
+
+      // NAV clavier OK
+      document.addEventListener("keydown", (e) => {
+        if (!audioCtx || !audioBuffer) return;
+        if (document.activeElement === timeStampInput) return;
+
+        switch (e.key) {
+          case "ArrowRight":
+            timeStampInput.value = Math.min(currentTime + 5, duration);
+            timeStampInput.dispatchEvent(new Event("input"));
+            break;
+          case "ArrowLeft":
+            timeStampInput.value = Math.max(currentTime - 5, 0);
+            timeStampInput.dispatchEvent(new Event("input"));
+            break;
+          case " ":
+            e.preventDefault();
+            playPauseBtn.click();
+            break;
+        }
+      });
+
+      /* --- Tout le reste de ton code de visualisation inchangé --- */
+      /* (stars, particles, halo, grid, CRT, spiral, 3D waves...) */
+
+      function initStars() {
+        stars = [];
+        for (let i = 0; i < 200; i++) {
+          stars.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            size: Math.random() * 2,
+            speed: Math.random() * 0.5 + 0.2,
+          });
+        }
+      }
+
+      function initParticles() {
+        particles = [];
+        for (let i = 0; i < 100; i++) {
+          particles.push({
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            angle: Math.random() * Math.PI * 2,
+            baseRadius: Math.random() * 100 + 150,
+            speed: Math.random() * 0.04 + 0.01,
+            size: Math.random() * 2 + 2,
+            smooth: 0,
+          });
+        }
+      }
+
+      initStars();
+      initParticles();
+
+      function drawStars() {
+        bctx.fillStyle = "white";
+        for (let s of stars) {
+          bctx.fillRect(s.x, s.y, s.size, s.size);
+          s.y += s.speed;
+          if (s.y > canvas.height) s.y = 0;
+        }
+      }
+
+      function drawHalo() {
+        if (!freqArray) return;
+        let bass = freqArray[5] / 255;
+        let radius = 200 + bass * 200;
+        let g = bctx.createRadialGradient(
+          canvas.width / 2,
+          canvas.height / 2,
+          10,
+          canvas.width / 2,
+          canvas.height / 2,
+          radius
+        );
+        g.addColorStop(0, "rgba(100,200,255,0.4)");
+        g.addColorStop(1, "rgba(0,0,0,0)");
+        bctx.fillStyle = g;
+        bctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+
+      function applyScreenWarp() {
+        const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = img.data;
+        const w = canvas.width;
+        const h = canvas.height;
+        const cx = w / 2,
+          cy = h / 2;
+        const intensity = 0.000003;
+        for (let y = 0; y < h; y++) {
+          for (let x = 0; x < w; x++) {
+            const dx = x - cx,
+              dy = y - cy;
+            const dist = dx * dx + dy * dy;
+            const offset = Math.floor(dist * intensity);
+            const idx = (y * w + x) * 4;
+            const src = idx + offset * 4;
+            if (src < data.length - 4) {
+              data[idx] = data[src];
+              data[idx + 1] = data[src + 1];
+              data[idx + 2] = data[src + 2];
+            }
+          }
+        }
+        ctx.putImageData(img, 0, 0);
+      }
+
+      function drawSpiralParticles(color) {
+        if (!freqArray) return;
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2;
+        bctx.fillStyle = color;
+        for (let p of particles) {
+          p.angle += p.speed * 0.3;
+          let audioVal =
+            freqArray[Math.floor(Math.random() * freqArray.length)] / 255;
+          p.smooth = p.smooth * 0.7 + audioVal * 0.3;
+          let radius = p.baseRadius + p.smooth * 400;
+          radius += Math.sin(p.angle * 4) * 8;
+          p.baseRadius += Math.sin(t * 0.01) * 0.05;
+          let x = cx + Math.cos(p.angle) * radius;
+          let y = cy + Math.sin(p.angle) * radius;
+          bctx.fillRect(x, y, p.size, p.size);
+        }
+      }
+
+      function applyCRT() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(buffer, 0, 0);
+
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+        ctx.globalAlpha = 0.06;
+        ctx.drawImage(buffer, 1.5, 0);
+        ctx.drawImage(buffer, -1.5, 0);
+        ctx.restore();
+
+        ctx.save();
+        ctx.globalAlpha = 0.1;
+        for (let y = 0; y < canvas.height; y += 3)
+          ctx.fillRect(0, y, canvas.width, 1);
+        ctx.restore();
+
+        ctx.save();
+        ctx.globalCompositeOperation = "screen";
+        ctx.globalAlpha = 0.08;
+        ctx.fillStyle = "rgba(80,150,255,0.25)";
+        ctx.fillRect(0, 0, 4, canvas.height);
+        ctx.fillRect(canvas.width - 4, 0, 4, canvas.height);
+        ctx.restore();
+      }
+
+      function drawCircularWave3D(waveStartAngle, direction) {
+        if (!freqArray) return;
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2;
+        const maxR = 150;
+        const step = (Math.PI * 2) / freqArray.length;
+
+        bctx.strokeStyle = "white";
+        bctx.beginPath();
+        for (let i = 0; i < freqArray.length; i++) {
+          let v = freqArray[i] / 255;
+          let r = maxR + Math.sin(direction * 0.05 + i * 0.1) * 20 + v * 120;
+          let x = cx + Math.cos(i * step + waveStartAngle) * r;
+          let y = cy + Math.sin(i * step + waveStartAngle) * r * 0.85;
+          if (i === 0) bctx.moveTo(x, y);
+          else bctx.lineTo(x, y);
+        }
+        bctx.closePath();
+        bctx.stroke();
+      }
+
+      function drawTronGrid1() {
+        if (!freqArray) return;
+        const bass = freqArray[5] / 255;
+        bctx.save();
+
+        const cx = canvas.width / 2 - canvas.width * 0.1;
+        const cy = canvas.height / 2;
+        const gridSize = 30;
+        const depth = 200;
+        const rotation = Math.PI / 2;
+        const speed = 0.15;
+        const zOffset = (t * speed) % 30;
+
+        bctx.strokeStyle = "rgba(0,200,255,0.35)";
+        bctx.lineWidth = 1;
+
+        for (let x = -20; x <= 20; x++) {
+          for (let z = 1; z <= 30; z++) {
+            const z3d = (z * depth) / 20;
+            const perspective = 500 / (500 - z3d);
+
+            const x3d =
+              Math.cos(rotation) * x * gridSize - Math.sin(rotation) * z3d;
+            const y3d =
+              Math.sin(rotation) * x * gridSize + Math.cos(rotation) * z3d;
+
+            const x2d = cx + x3d * perspective;
+            const y2d = cy + y3d * perspective;
+
+            const nextZ3d = ((z + 1) * depth) / 20;
+            const nextPerspective = 500 / (500 - nextZ3d);
+
+            const nextX3d =
+              Math.cos(rotation) * x * gridSize - Math.sin(rotation) * nextZ3d;
+            const nextY3d =
+              Math.sin(rotation) * x * gridSize + Math.cos(rotation) * nextZ3d;
+
+            const nextX2d = cx + nextX3d * nextPerspective;
+            const nextY2d = cy + nextY3d * nextPerspective;
+
+            if (z >= 1) {
+              bctx.beginPath();
+              bctx.moveTo(x2d, y2d);
+              bctx.lineTo(nextX2d, nextY2d);
+              bctx.stroke();
+            }
+          }
+        }
+
+        for (let z = 1; z <= 30; z++) {
+          const animatedZ = z === 1 ? 1 : ((z - 1 + zOffset) % 30) + 1;
+          const z3d = (animatedZ * depth) / 20;
+          const perspective = 500 / (500 - z3d);
+
+          bctx.beginPath();
+          for (let x = -20; x <= 20; x++) {
+            const x3d =
+              Math.cos(rotation) * x * gridSize - Math.sin(rotation) * z3d;
+            const y3d =
+              Math.sin(rotation) * x * gridSize + Math.cos(rotation) * z3d;
+
+            const x2d = cx + x3d * perspective;
+            const y2d = cy + y3d * perspective;
+
+            if (x === -20) bctx.moveTo(x2d, y2d);
+            else bctx.lineTo(x2d, y2d);
+          }
+          bctx.stroke();
+        }
+
+        bctx.restore();
+      }
+
+      function drawTronGrid2() {
+        if (!freqArray) return;
+        const bass = freqArray[5] / 255;
+        bctx.save();
+
+        const cx = canvas.width / 2 + canvas.width * 0.1;
+        const cy = canvas.height / 2;
+        const gridSize = 30;
+        const depth = 200;
+        const rotation = (3 * Math.PI) / 2;
+        const speed = 0.15;
+        const zOffset = (t * speed) % 30;
+
+        bctx.strokeStyle = "rgba(0,200,255,0.35)";
+        bctx.lineWidth = 1;
+
+        for (let x = -20; x <= 20; x++) {
+          for (let z = 1; z <= 30; z++) {
+            const z3d = (z * depth) / 20;
+            const perspective = 500 / (500 - z3d);
+
+            const x3d =
+              Math.cos(rotation) * x * gridSize - Math.sin(rotation) * z3d;
+            const y3d =
+              Math.sin(rotation) * x * gridSize + Math.cos(rotation) * z3d;
+
+            const x2d = cx + x3d * perspective;
+            const y2d = cy + y3d * perspective;
+
+            const nextZ3d = ((z + 1) * depth) / 20;
+            const nextPerspective = 500 / (500 - nextZ3d);
+
+            const nextX3d =
+              Math.cos(rotation) * x * gridSize - Math.sin(rotation) * nextZ3d;
+            const nextY3d =
+              Math.sin(rotation) * x * gridSize + Math.cos(rotation) * nextZ3d;
+
+            const nextX2d = cx + nextX3d * nextPerspective;
+            const nextY2d = cy + nextY3d * nextPerspective;
+
+            if (z >= 1) {
+              bctx.beginPath();
+              bctx.moveTo(x2d, y2d);
+              bctx.lineTo(nextX2d, nextY2d);
+              bctx.stroke();
+            }
+          }
+        }
+
+        for (let z = 1; z <= 30; z++) {
+          const animatedZ = z === 1 ? 1 : ((z - 1 + zOffset) % 30) + 1;
+          const z3d = (animatedZ * depth) / 20;
+          const perspective = 500 / (500 - z3d);
+
+          bctx.beginPath();
+          for (let x = -20; x <= 20; x++) {
+            const x3d =
+              Math.cos(rotation) * x * gridSize - Math.sin(rotation) * z3d;
+            const y3d =
+              Math.sin(rotation) * x * gridSize + Math.cos(rotation) * z3d;
+
+            const x2d = cx + x3d * perspective;
+            const y2d = cy + y3d * perspective;
+
+            if (x === -20) bctx.moveTo(x2d, y2d);
+            else bctx.lineTo(x2d, y2d);
+          }
+          bctx.stroke();
+        }
+
+        bctx.restore();
+      }
+
+      // 🆕 Correction du calcul du temps dans animate()
+      function animate() {
+        t++;
+
+        if (audioCtx && audioSource) {
+          currentTime = (audioCtx.currentTime - startTime) + offset;
+
+          if (currentTime < 0) currentTime = 0;
+          if (currentTime > duration) currentTime = duration;
+
+          timeStampInput.value = currentTime;
+          updateTimeDisplay();
+        }
+
+        bctx.clearRect(0, 0, buffer.width, buffer.height);
+
+        let g = bctx.createLinearGradient(0, 0, buffer.width, buffer.height);
+        g.addColorStop(0, `hsl(${t % 360}, 80%, 25%)`);
+        g.addColorStop(1, `hsl(${(t + 120) % 360}, 80%, 25%)`);
+        bctx.fillStyle = g;
+        bctx.fillRect(0, 0, buffer.width, buffer.height);
+
+        drawStars();
+        drawHalo();
+        drawSpiralParticles("#0f0");
+        drawSpiralParticles("#f0f");
+        drawTronGrid1();
+        drawTronGrid2();
+
+        drawCircularWave3D(0, t);
+        drawCircularWave3D(Math.PI, -t);
+
+        // --- Image qui tourne au centre ---
+        if (rotatingImage.complete) {
+          const cx = canvas.width / 2;
+          const cy = canvas.height / 2;
+
+          bctx.save();
+          bctx.translate(cx, cy);
+          rotationAngle += 0.01; // vitesse de rotation
+          bctx.rotate(rotationAngle);
+
+          const size = 200;   // taille de l'image
+          bctx.drawImage(rotatingImage, -size/2, -size/2, size, size);
+
+          bctx.restore();
+        }
+
+
+        applyCRT();
+        applyScreenWarp();
+
+        requestAnimationFrame(animate);
+      }
+
+      animate();
+
+      const fileInput = document.getElementById("fileInput");
+      fileInput.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => startAudio(ev.target.result);
+        reader.readAsArrayBuffer(file);
+      };
+
+      function stopCurrentAudio() {
+        if (audioSource) {
+          try {
+            audioSource.stop();
+          } catch {}
+          audioSource.disconnect();
+        }
+        if (audioCtx && audioCtx.state !== "closed") {
+          audioCtx.close().catch(() => {});
+        }
+      }
+
+      async function startAudio(arrayBuffer) {
+        stopCurrentAudio();
+
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const audioData = await audioCtx.decodeAudioData(arrayBuffer);
+        audioBuffer = audioData;
+
+        audioSource = audioCtx.createBufferSource();
+        audioSource.buffer = audioData;
+
+        duration = audioData.duration;
+        timeStampInput.max = duration;
+        timeStampInput.value = 0;
+        currentTime = 0;
+
+        gainNode = audioCtx.createGain();
+        gainNode.gain.value = volumeSlider.value;
+
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 2048;
+        freqArray = new Uint8Array(analyser.frequencyBinCount);
+
+        audioSource.connect(gainNode);
+        gainNode.connect(analyser);
+        analyser.connect(audioCtx.destination);
+
+        // 🆕 Initialisation du timing
+        offset = 0;
+        startTime = audioCtx.currentTime;
+
+        audioSource.start(0);
+
+        setInterval(() => {
+          analyser.getByteFrequencyData(freqArray);
+        }, 16);
+
+        playPauseBtn.textContent = "Pause";
+      }
+    </script>
+  </body>
+</html>
