@@ -327,11 +327,27 @@ function onMouseMove(event) {
         );
         const pos = toScreenPosition({ position: tempVector, updateMatrixWorld: () => {}, matrixWorld: new THREE.Matrix4().setPosition(tempVector) }, camera, renderer);
         
-        // Afficher la popup
+        // Afficher la popup avec offset adaptatif
         popupElement.style.display = 'block';
+        
+        // Calculer l'offset vertical adaptatif
+        const offsetY = window.innerWidth < 480 ? 50 : window.innerWidth < 768 ? 65 : 80;
+        
         popupElement.style.left = pos.x + 'px';
-        popupElement.style.top = (pos.y - 80) + 'px';
+        popupElement.style.top = (pos.y - offsetY) + 'px';
         popupElement.style.transform = 'translateX(-50%)';
+        
+        // S'assurer que la popup reste dans l'écran
+        requestAnimationFrame(() => {
+            const popupRect = popupElement.getBoundingClientRect();
+            if (popupRect.left < 10) {
+                popupElement.style.left = (popupRect.width / 2 + 10) + 'px';
+                popupElement.style.transform = 'translateX(0)';
+            } else if (popupRect.right > window.innerWidth - 10) {
+                popupElement.style.left = (window.innerWidth - popupRect.width / 2 - 10) + 'px';
+                popupElement.style.transform = 'translateX(-100%)';
+            }
+        });
         
         // Mettre à jour le texte
         const textElement = popupElement.querySelector('.popup-text');
@@ -386,8 +402,23 @@ function animate() {
             matrixWorld: new THREE.Matrix4().setPosition(tempVector) 
         }, camera, renderer);
         
+        // Calculer l'offset vertical adaptatif
+        const offsetY = window.innerWidth < 480 ? 50 : window.innerWidth < 768 ? 65 : 80;
+        
         popupElement.style.left = pos.x + 'px';
-        popupElement.style.top = (pos.y - 80) + 'px';
+        popupElement.style.top = (pos.y - offsetY) + 'px';
+        
+        // S'assurer que la popup reste dans l'écran
+        requestAnimationFrame(() => {
+            const popupRect = popupElement.getBoundingClientRect();
+            if (popupRect.left < 10) {
+                popupElement.style.left = (popupRect.width / 2 + 10) + 'px';
+                popupElement.style.transform = 'translateX(0)';
+            } else if (popupRect.right > window.innerWidth - 10) {
+                popupElement.style.left = (window.innerWidth - popupRect.width / 2 - 10) + 'px';
+                popupElement.style.transform = 'translateX(-100%)';
+            }
+        });
     }
 
     controls.update();
