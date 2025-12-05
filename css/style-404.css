@@ -1,0 +1,110 @@
+body {
+    margin: 0;
+    font-family: monospace;
+    background-color: #1a1a1a;
+    color: #9bb563;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 1rem;
+}
+
+h1 {
+    font-size: 4rem;
+    text-shadow: 0 0 10px rgba(155, 181, 99, 0.5);
+    margin: 0 0 0.5rem 0;
+}
+
+p {
+    margin: 0.25rem 0;
+}
+
+a {
+    display: inline-block;
+    padding: 0.5rem 1.5rem;
+    background-color: #9bb563;
+    color: #1a1a1a;
+    text-decoration: none;
+    border: 2px solid #9bb563;
+    transition: 0.3s;
+}
+
+a:hover {
+    background-color: #b5cc77;
+}
+
+.monkey-container img {
+    width:100px;
+}
+
+/* Snake Game Styles */
+.snake-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.nokia-frame {
+    position: relative;
+    padding: 2rem;
+    border-radius: 3rem;
+    background: linear-gradient(145deg, #4a4a4a, #2a2a2a);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.screen-bezel {
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    background: #3a3a3a;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.8);
+}
+
+.score-display, .instructions {
+    text-align: center;
+    background-color: #7a934e;
+    color: #9bb563;
+    padding: 0.25rem;
+    margin: 0.25rem 0;
+    font-size: 0.875rem;
+}
+
+.instructions {
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+canvas {
+    display: block;
+    image-rendering: pixelated;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3);
+    background-color: #9bb563;
+}
+
+.overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(155, 181, 99, 0.9);
+    text-align: center;
+    font-family: monospace;
+    color: #0f0f0f;
+}
+
+.nokia-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.nokia-button {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #5a5a5a, #3a3a3a);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
