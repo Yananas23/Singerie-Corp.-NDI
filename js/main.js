@@ -26,8 +26,8 @@ function init() {
         0.1,
         1000
     );
-    camera.position.set(25, 20, 25);
-    camera.lookAt(0, 0, 0);
+    camera.position.set(30, 15, 30);
+    camera.lookAt(0, 2, 0);
 
     // Renderer avec paramètres réalistes
     renderer = new THREE.WebGLRenderer({ 
