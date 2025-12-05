@@ -155,19 +155,19 @@ function createBoundaryCylinder(scene) {
     
     const texture = new THREE.TextureLoader().load('media/fond_ecran.png');
     texture.wrapS = THREE.RepeatWrapping;
-    texture.wrapT = THREE.RepeatWrapping;
+    texture.wrapT = THREE.ClampToEdgeWrapping;
     texture.repeat.set(1, 1);
+    texture.offset.set(0, 0);
+    texture.colorSpace = THREE.SRGBColorSpace;
     
-    const cylinderMaterial = new THREE.MeshStandardMaterial({
+    const cylinderMaterial = new THREE.MeshBasicMaterial({
         map: texture, 
-        transparent: true, 
-        opacity: 1, 
         side: THREE.DoubleSide
     });
     
     const cylinder = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
 
-    cylinder.position.y = 15;
+    cylinder.position.y = 14.7;
     scene.add(cylinder);
 }
 
