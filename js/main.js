@@ -339,10 +339,14 @@ function onMouseMove(event) {
         popupElement.style.top = marginTop;
         popupElement.style.transform = 'none';
         
-        // Mettre à jour le texte
+        // Mettre à jour le texte et le logo
         const textElement = popupElement.querySelector('.popup-text');
+        const iconElement = popupElement.querySelector('.popup-icon');
         if (textElement) {
             textElement.textContent = foundHut.userData.name || 'Cliquez pour entrer';
+        }
+        if (iconElement && foundHut.userData.logo) {
+            iconElement.textContent = foundHut.userData.logo;
         }
     } else {
         document.body.style.cursor = 'default';

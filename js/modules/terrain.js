@@ -209,7 +209,7 @@ function createBoundaryCylinder(scene) {
     const texture = new THREE.TextureLoader().load('media/fond_ecran.png');
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.ClampToEdgeWrapping;
-    texture.repeat.set(1, 1);
+    texture.repeat.set(-1, 1);
     texture.offset.set(0, 0);
     texture.colorSpace = THREE.SRGBColorSpace;
     

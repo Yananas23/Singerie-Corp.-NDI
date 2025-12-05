@@ -192,21 +192,22 @@ export function createCentralHut(scene) {
 export function createVillageHuts(scene) {
     // Disposition des huttes en cercle autour de la hutte centrale
     const hutPositions = [
-        { x: 8, z: 8, color: 0xDAA520, name: 'Hutte 1', url: 'page1.html', showPopup: true },
-        { x: -8, z: 8, color: 0xD2691E, name: 'Hutte 2', url: 'games/alternatives.html', showPopup: true },
-        { x: 8, z: -8, color: 0xCD853F, name: 'Hutte 3', url: 'page3.html', showPopup: true },
-        { x: -8, z: -8, color: 0xDAA520, name: 'Hutte 4', url: 'page4.html', showPopup: true },
-        { x: 12, z: 0, color: 0xD2691E, name: 'Hutte 5', url: '#', showPopup: false },
-        { x: -12, z: 0, color: 0xCD853F, name: 'Hutte 6', url: '#', showPopup: false },
-        { x: 0, z: 12, color: 0xDAA520, name: 'Hutte 7', url: '#', showPopup: false },
-        { x: 0, z: -12, color: 0xD2691E, name: 'Hutte 8', url: '#', showPopup: false }
+        { x: 8, z: 8, color: 0xDAA520, name: 'Forge', url: 'page1.html', showPopup: true, logo: '⚒️' },
+        { x: -8, z: 8, color: 0xD2691E, name: 'Ecole de Langues', url: 'games/alternatives.html', showPopup: true, logo: '💬' },
+        { x: 8, z: -8, color: 0xCD853F, name: 'Ecole de Musique', url: 'page3.html', showPopup: true, logo: '🎵' },
+        { x: -8, z: -8, color: 0xDAA520, name: 'Crédit', url: 'page4.html', showPopup: true, logo: '©' },
+        { x: 12, z: 0, color: 0xD2691E, name: '', url: '#', showPopup: false, logo: '' },
+        { x: -12, z: 0, color: 0xCD853F, name: '', url: '#', showPopup: false, logo: '' },
+        { x: 0, z: 12, color: 0xDAA520, name: '', url: '#', showPopup: false, logo: '' },
+        { x: 0, z: -12, color: 0xD2691E, name: '', url: '#', showPopup: false, logo: '' }
     ];
 
     // Créer la hutte centrale du chef
     const centralHutData = createCentralHut(scene);
-    centralHutData.group.userData.name = 'Hutte du Chef';
+    centralHutData.group.userData.name = 'Direction';
     centralHutData.group.userData.showPopup = true;
     centralHutData.group.userData.url = 'chief.html';
+    centralHutData.group.userData.logo = '👑';
 
     // Créer les huttes du village
     const huts = [];
@@ -215,6 +216,7 @@ export function createVillageHuts(scene) {
         hut.userData.name = pos.name;
         hut.userData.showPopup = pos.showPopup;
         hut.userData.url = pos.url;
+        hut.userData.logo = pos.logo;
         huts.push(hut);
     });
 
