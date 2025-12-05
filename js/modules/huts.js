@@ -193,7 +193,7 @@ export function createVillageHuts(scene) {
     // Disposition des huttes en cercle autour de la hutte centrale
     const hutPositions = [
         { x: 8, z: 8, color: 0xDAA520, name: 'Hutte 1', url: 'page1.html', showPopup: true },
-        { x: -8, z: 8, color: 0xD2691E, name: 'Hutte 2', url: 'page2.html', showPopup: true },
+        { x: -8, z: 8, color: 0xD2691E, name: 'Hutte 2', url: 'games/alternatives.html', showPopup: true },
         { x: 8, z: -8, color: 0xCD853F, name: 'Hutte 3', url: 'page3.html', showPopup: true },
         { x: -8, z: -8, color: 0xDAA520, name: 'Hutte 4', url: 'page4.html', showPopup: true },
         { x: 12, z: 0, color: 0xD2691E, name: 'Hutte 5', url: 'page5.html', showPopup: false },
@@ -206,7 +206,7 @@ export function createVillageHuts(scene) {
     const centralHutData = createCentralHut(scene);
     centralHutData.group.userData.name = 'Hutte du Chef';
     centralHutData.group.userData.showPopup = true;
-    //centralHutData.group.userData.url = 'chief.html';
+    centralHutData.group.userData.url = 'chief.html';
 
     // Créer les huttes du village
     const huts = [];
@@ -214,7 +214,7 @@ export function createVillageHuts(scene) {
         const hut = createHut(scene, pos.x, pos.z, pos.color);
         hut.userData.name = pos.name;
         hut.userData.showPopup = pos.showPopup;
-        //hut.userData.url = pos.url;
+        hut.userData.url = pos.url;
         huts.push(hut);
     });
 
