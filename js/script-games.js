@@ -2,36 +2,42 @@
 // Données du jeu
 // ----------------------
 const QUESTIONS = [
-  {
-    proprietary: "Photoshop",
-    libre: "GIMP",
-    info: "GIMP est une alternative libre et puissante à Photoshop."
-  },
-  {
-    proprietary: "Word",
-    libre: "LibreOffice Writer",
-    info: "LibreOffice Writer remplace Word sans dépendance propriétaire."
-  },
-  {
-    proprietary: "Windows",
-    libre: "Linux",
-    info: "Linux est un système libre, sécurisé et personnalisable."
-  },
-  {
-    proprietary: "Excel",
-    libre: "LibreOffice Calc",
-    info: "LibreOffice Calc est un tableur libre compatible Excel."
-  },
-  {
-    proprietary: "Pronote",
-    libre: "SchoolTool / Gibbon",
-    info: "SchoolTool et Gibbon sont des alternatives libres pour la gestion scolaire (notes, absences, suivi des élèves)."
-  },
-  {
-    proprietary: "OneDrive",
-    libre: "Nextcloud",
-    info: "Nextcloud est une solution libre de stockage et collaboration, hébergée localement ou sur serveur souverain."
-  }
+{
+  proprietary: "Photoshop",
+  libre: "GIMP",
+  info: "GIMP permet de retoucher des images comme Photoshop : calques, filtres, détourages… mais sans abonnement. Il consomme moins de ressources et fonctionne sur Windows, Linux et macOS.",
+  download: "https://www.gimp.org/downloads/"
+},
+{
+  proprietary: "Word",
+  libre: "LibreOffice Writer",
+  info: "LibreOffice Writer ouvre et crée des documents .docx sans problème. Il offre le formatage avancé, les styles, l’export PDF, et n’impose aucune licence : tout est gratuit et open source.",
+  download: "https://www.libreoffice.org/download/download-libreoffice/"
+},
+{
+  proprietary: "Windows",
+  libre: "Linux",
+  info: "Linux est un système d’exploitation libre, plus sécurisé car il limite les virus et laisse un contrôle total sur la machine. Plusieurs versions existent, du simple pour débutants (Ubuntu) au très personnalisable.",
+  download: "https://ubuntu.com/download"
+},
+{
+  proprietary: "Excel",
+  libre: "LibreOffice Calc",
+  info: "LibreOffice Calc est un tableur compatible Excel : formules, graphiques, tableaux croisés… Il lit les fichiers .xlsx et permet même des macros sans dépendances propriétaires.",
+  download: "https://www.libreoffice.org/download/download-libreoffice/"
+},
+{
+  proprietary: "Pronote",
+  libre: "SchoolTool / Gibbon",
+  info: "SchoolTool et Gibbon gèrent les élèves, les notes et la vie scolaire. Ils sont libres, installables sur un serveur local, et évitent la dépendance à des plateformes privées.",
+  download: "https://gibbonedu.org/ (Gibbon) / https://schooltool.org/"
+},
+{
+  proprietary: "OneDrive",
+  libre: "Nextcloud",
+  info: "Nextcloud permet de stocker et partager des fichiers comme OneDrive, mais sur ton propre serveur. Sécurisé, chiffré, collaboratif, et 100% maîtrisé par l’utilisateur ou l’organisation.",
+  download: "https://nextcloud.com/install/"
+}
 ];
 
 let currentQuestion = 0;
@@ -111,7 +117,7 @@ function renderQuestion() {
 
         <div class="relative flex-1">
           <div id="speech" class="bg-blue-100 border-2 border-blue-300 p-6 rounded-2xl shadow-md">
-            <p class="text-xl speech">Alternative libre pour <b>${q.proprietary}</b> ?</p>
+            <p class="text-xl speech">Quelle alternative libre pour <b>${q.proprietary}</b> ?</p>
           </div>
         </div>
       </div>
@@ -216,7 +222,7 @@ function choose(choice) {
 
   // Texte machine à écrire
   const speech = document.getElementById("speech");
-  typeWriter(speech, `<b>${q.libre}</b> : ${q.info}`, 0);
+  typeWriter(speech, `${q.info}. 🔗 Pour le télecharger : <a href="${q.download}" target="_blank">${q.download}</a>`, 0);
 
   // Afficher bouton suivant
   document.getElementById("nextBtn").classList.remove("hidden");
