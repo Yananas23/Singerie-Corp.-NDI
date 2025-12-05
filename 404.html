@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 - Snake Game</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="stylesheet" href="./css/style-404.css">
+</head>
+<body>
+
+  <div class="text-center mb-8">
+    <h1>404</h1>
+    <p>SINGE NOT FOUND</p>
+  </div>
+  <div class="monkey-container"><img src="./media/Monkey-not-found.png" alt="Monkey"/></div>
+
+  <div class="snake-container">
+    <div class="nokia-frame">
+      <div class="screen-bezel">
+        <div class="score-display" id="score">SCORE : 0</div>
+        <div style="position: relative;">
+          <canvas id="snakeCanvas" width="240" height="240"></canvas>
+
+          <div class="overlay" id="startOverlay">APPUYEZ sur une flèche<br>POUR COMMENCER</div>
+          <div class="overlay" id="gameOverOverlay" style="display: none;">GAME OVER<br>Appuyer sur ESPACE</div>
+        </div>
+        <div class="instructions">UTILISEZ LES FLÈCHES</div>
+      </div>
+      <div class="nokia-buttons">
+        <div class="nokia-button"></div>
+        <div class="nokia-button"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-8 text-center flex flex-col gap-2">
+    <div>Pendant que vous êtes ici, jouez à Snake !</div>
+    <div><a href="../index.html">🛖 Retourner aux huttes</a></div>
+  </div>
+  <script src="./js/script-404.js"></script>
+</body>
+</html>
