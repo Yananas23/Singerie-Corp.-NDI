@@ -77,6 +77,8 @@ export function createHut(scene, x, z, color = 0xDAA520) {
 
 
     hutGroup.position.set(x, 0, z);
+    hutGroup.userData.clickable = true;
+    hutGroup.userData.hutType = 'standard';
     scene.add(hutGroup);
     
     return hutGroup;
@@ -179,6 +181,8 @@ export function createCentralHut(scene) {
     }
 
     hutGroup.position.set(0, 0, 0);
+    hutGroup.userData.clickable = true;
+    hutGroup.userData.hutType = 'central';
     scene.add(hutGroup);
     
     // Retourner le groupe et le drapeau pour animation
@@ -188,26 +192,35 @@ export function createCentralHut(scene) {
 export function createVillageHuts(scene) {
     // Disposition des huttes en cercle autour de la hutte centrale
     const hutPositions = [
-        { x: 8, z: 8, color: 0xDAA520 },
-        { x: -8, z: 8, color: 0xD2691E },
-        { x: 8, z: -8, color: 0xCD853F },
-        { x: -8, z: -8, color: 0xDAA520 },
-        { x: 12, z: 0, color: 0xD2691E },
-        { x: -12, z: 0, color: 0xCD853F },
-        { x: 0, z: 12, color: 0xDAA520 },
-        { x: 0, z: -12, color: 0xD2691E }
+        { x: 8, z: 8, color: 0xDAA520, name: 'Hutte 1', url: 'page1.html', showPopup: true },
+        { x: -8, z: 8, color: 0xD2691E, name: 'Hutte 2', url: 'page2.html', showPopup: true },
+        { x: 8, z: -8, color: 0xCD853F, name: 'Hutte 3', url: 'page3.html', showPopup: true },
+        { x: -8, z: -8, color: 0xDAA520, name: 'Hutte 4', url: 'page4.html', showPopup: true },
+        { x: 12, z: 0, color: 0xD2691E, name: 'Hutte 5', url: 'page5.html', showPopup: false },
+        { x: -12, z: 0, color: 0xCD853F, name: 'Hutte 6', url: 'page6.html', showPopup: false },
+        { x: 0, z: 12, color: 0xDAA520, name: 'Hutte 7', url: 'page7.html', showPopup: false },
+        { x: 0, z: -12, color: 0xD2691E, name: 'Hutte 8', url: 'page8.html', showPopup: false }
     ];
 
     // Créer la hutte centrale du chef
     const centralHutData = createCentralHut(scene);
+    centralHutData.group.userData.name = 'Hutte du Chef';
+    centralHutData.group.userData.showPopup = true;
+    //centralHutData.group.userData.url = 'chief.html';
 
     // Créer les huttes du village
+    const huts = [];
     hutPositions.forEach(pos => {
-        createHut(scene, pos.x, pos.z, pos.color);
+        const hut = createHut(scene, pos.x, pos.z, pos.color);
+        hut.userData.name = pos.name;
+        hut.userData.showPopup = pos.showPopup;
+        //hut.userData.url = pos.url;
+        huts.push(hut);
     });
 
-    // Retourner les drapeaux pour animation
+    // Retourner les drapeaux et les huttes pour l'interaction
     return {
-        flags: centralHutData.flag ? [centralHutData.flag] : []
+        flags: centralHutData.flag ? [centralHutData.flag] : [],
+        huts: [centralHutData.group, ...huts]
     };
 }

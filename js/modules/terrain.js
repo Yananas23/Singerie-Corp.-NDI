@@ -153,10 +153,10 @@ function createRocksAround(scene) {
 function createBoundaryCylinder(scene) {
     const cylinderGeometry = new THREE.CylinderGeometry(60, 60, 30, 64, 1, true);
     
-    const texture = new THREE.TextureLoader().load('media/Fichier_4.png');
+    const texture = new THREE.TextureLoader().load('media/fond_ecran.png');
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
-    texture.repeat.set(5, 1);
+    texture.repeat.set(1, 1);
     
     const cylinderMaterial = new THREE.MeshStandardMaterial({
         map: texture, 

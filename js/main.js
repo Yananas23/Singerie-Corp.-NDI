@@ -5,6 +5,10 @@ import { createTerrain } from './modules/terrain.js';
 import { createVillageHuts } from './modules/huts.js';
 
 let scene, camera, renderer, controls;
+let raycaster, mouse;
+let huts = [];
+let currentHoveredHut = null;
+let popupElement;
 
 function init() {
     // Cacher le message de chargement
@@ -49,6 +53,13 @@ function init() {
     controls.maxPolarAngle = Math.PI / 2.2;
     controls.target.set(0, 0, 0);
 
+    // Raycaster pour détecter les clics
+    raycaster = new THREE.Raycaster();
+    mouse = new THREE.Vector2();
+    
+    // Récupérer l'élément popup
+    popupElement = document.getElementById('hut-popup');
+
     // Lumières
     setupLights();
 
@@ -57,6 +68,11 @@ function init() {
 
     // Créer le village avec ses huttes
     const villageHuts = createVillageHuts(scene);
+    
+    // Stocker les huttes pour l'interaction
+    if (villageHuts && villageHuts.huts) {
+        huts = villageHuts.huts;
+    }
 
     // Ajouter animation pour les drapeaux
     if (villageHuts && villageHuts.flags) {
@@ -84,6 +100,10 @@ function init() {
 
     // Gestion du redimensionnement
     window.addEventListener('resize', onWindowResize, false);
+    
+    // Gestion des clics sur les huttes
+    window.addEventListener('click', onMouseClick, false);
+    window.addEventListener('mousemove', onMouseMove, false);
 
     // Animation
     animate();
@@ -259,12 +279,115 @@ function createBarrel(scene, x, y, z) {
     scene.add(barrel);
 }
 
+function toScreenPosition(obj, camera, renderer) {
+    const vector = new THREE.Vector3();
+    const widthHalf = renderer.domElement.width / 2;
+    const heightHalf = renderer.domElement.height / 2;
+
+    obj.updateMatrixWorld();
+    vector.setFromMatrixPosition(obj.matrixWorld);
+    vector.project(camera);
+
+    vector.x = (vector.x * widthHalf) + widthHalf;
+    vector.y = -(vector.y * heightHalf) + heightHalf;
+
+    return {
+        x: vector.x,
+        y: vector.y
+    };
+}
+
+function onMouseMove(event) {
+    // Calculer la position de la souris en coordonnées normalisées
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    // Vérifier si on survole une hutte
+    raycaster.setFromCamera(mouse, camera);
+    
+    let foundHut = null;
+    
+    for (let hut of huts) {
+        const intersects = raycaster.intersectObject(hut, true);
+        if (intersects.length > 0) {
+            foundHut = hut;
+            break;
+        }
+    }
+    
+    if (foundHut && foundHut.userData.showPopup !== false) {
+        document.body.style.cursor = 'pointer';
+        currentHoveredHut = foundHut;
+        
+        // Calculer la position 2D de la hutte
+        const tempVector = new THREE.Vector3(
+            foundHut.position.x,
+            foundHut.userData.hutType === 'central' ? 10 : 6,
+            foundHut.position.z
+        );
+        const pos = toScreenPosition({ position: tempVector, updateMatrixWorld: () => {}, matrixWorld: new THREE.Matrix4().setPosition(tempVector) }, camera, renderer);
+        
+        // Afficher la popup
+        popupElement.style.display = 'block';
+        popupElement.style.left = pos.x + 'px';
+        popupElement.style.top = (pos.y - 80) + 'px';
+        popupElement.style.transform = 'translateX(-50%)';
+        
+        // Mettre à jour le texte
+        const textElement = popupElement.querySelector('.popup-text');
+        if (textElement) {
+            textElement.textContent = foundHut.userData.name || 'Cliquez pour entrer';
+        }
+    } else {
+        document.body.style.cursor = 'default';
+        currentHoveredHut = null;
+        popupElement.style.display = 'none';
+    }
+}
+
+function onMouseClick(event) {
+    // Calculer la position de la souris
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    // Mettre à jour le raycaster
+    raycaster.setFromCamera(mouse, camera);
+
+    // Vérifier les intersections avec les huttes
+    huts.forEach(hut => {
+        const intersects = raycaster.intersectObject(hut, true);
+        if (intersects.length > 0 && hut.userData.clickable) {
+            // Ouvrir l'URL associée à la hutte
+            if (hut.userData.url) {
+                window.location.href = hut.userData.url;
+            }
+        }
+    });
+}
+
 function animate() {
     requestAnimationFrame(animate);
 
     // Exécuter les animations personnalisées
     if (scene.userData.animations) {
         scene.userData.animations.forEach(anim => anim());
+    }
+    
+    // Mettre à jour la position de la popup si une hutte est survolée
+    if (currentHoveredHut && popupElement.style.display !== 'none') {
+        const tempVector = new THREE.Vector3(
+            currentHoveredHut.position.x,
+            currentHoveredHut.userData.hutType === 'central' ? 10 : 6,
+            currentHoveredHut.position.z
+        );
+        const pos = toScreenPosition({ 
+            position: tempVector, 
+            updateMatrixWorld: () => {}, 
+            matrixWorld: new THREE.Matrix4().setPosition(tempVector) 
+        }, camera, renderer);
+        
+        popupElement.style.left = pos.x + 'px';
+        popupElement.style.top = (pos.y - 80) + 'px';
     }
 
     controls.update();
