@@ -57,7 +57,7 @@ const teamMembers = [
         <p class="member-desc">${member.description}</p>
         <div class="icon-btn">
           <a href="${member.github}" target="_blank">
-            <img src="../media/github-logo-white.svg" alt="GitHub"/>
+            <img src="./media/github-logo-white.svg" alt="GitHub"/>
           </a>
       </div>
       `;
