@@ -196,10 +196,10 @@ export function createVillageHuts(scene) {
         { x: -8, z: 8, color: 0xD2691E, name: 'Hutte 2', url: 'games/alternatives.html', showPopup: true },
         { x: 8, z: -8, color: 0xCD853F, name: 'Hutte 3', url: 'page3.html', showPopup: true },
         { x: -8, z: -8, color: 0xDAA520, name: 'Hutte 4', url: 'page4.html', showPopup: true },
-        { x: 12, z: 0, color: 0xD2691E, name: 'Hutte 5', url: 'page5.html', showPopup: false },
-        { x: -12, z: 0, color: 0xCD853F, name: 'Hutte 6', url: 'page6.html', showPopup: false },
-        { x: 0, z: 12, color: 0xDAA520, name: 'Hutte 7', url: 'page7.html', showPopup: false },
-        { x: 0, z: -12, color: 0xD2691E, name: 'Hutte 8', url: 'page8.html', showPopup: false }
+        { x: 12, z: 0, color: 0xD2691E, name: 'Hutte 5', url: '#', showPopup: false },
+        { x: -12, z: 0, color: 0xCD853F, name: 'Hutte 6', url: '#', showPopup: false },
+        { x: 0, z: 12, color: 0xDAA520, name: 'Hutte 7', url: '#', showPopup: false },
+        { x: 0, z: -12, color: 0xD2691E, name: 'Hutte 8', url: '#', showPopup: false }
     ];
 
     // Créer la hutte centrale du chef
