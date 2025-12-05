@@ -26,8 +26,8 @@ function init() {
         0.1,
         1000
     );
-    camera.position.set(25, 20, 25);
-    camera.lookAt(0, 0, 0);
+    camera.position.set(30, 15, 30);
+    camera.lookAt(0, 2, 0);
 
     // Renderer avec paramètres réalistes
     renderer = new THREE.WebGLRenderer({ 
@@ -339,10 +339,14 @@ function onMouseMove(event) {
         popupElement.style.top = marginTop;
         popupElement.style.transform = 'none';
         
-        // Mettre à jour le texte
+        // Mettre à jour le texte et le logo
         const textElement = popupElement.querySelector('.popup-text');
+        const iconElement = popupElement.querySelector('.popup-icon');
         if (textElement) {
             textElement.textContent = foundHut.userData.name || 'Cliquez pour entrer';
+        }
+        if (iconElement && foundHut.userData.logo) {
+            iconElement.textContent = foundHut.userData.logo;
         }
     } else {
         document.body.style.cursor = 'default';

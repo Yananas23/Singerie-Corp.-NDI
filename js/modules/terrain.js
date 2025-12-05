@@ -68,9 +68,9 @@ function createPalisade(scene) {
         metalness: 0
     });
     
-    // Définir l'angle de la porte d'entrée (face sud, vers z négatif)
-    const gateAngleStart = (Math.PI * 1.45); // Début de la porte
-    const gateAngleEnd = (Math.PI * 1.55);   // Fin de la porte
+    // Définir l'angle de la porte d'entrée (face sud-est, vers la caméra initiale)
+    const gateAngleStart = (Math.PI * 0.2); // Début ts.google.com/specimen/Happy+Monkey?query=monkde la porte
+    const gateAngleEnd = (Math.PI * 0.3);   // Fin de la porte
     
     for (let i = 0; i < poleCount; i++) {
         const angle = (i / poleCount) * Math.PI * 2;
@@ -130,17 +130,40 @@ function createPalisade(scene) {
     const beamGeometry = new THREE.BoxGeometry(gateWidth + 0.5, 0.3, 0.3);
     const beam = new THREE.Mesh(beamGeometry, woodMaterial);
     beam.position.set(gateCenterX, gatePostHeight, gateCenterZ);
-    beam.rotation.y = perpAngle;
+    beam.rotation.y = perpAngle + Math.PI / 2;
     beam.castShadow = true;
     scene.add(beam);
     
     // Panneau décoratif au-dessus de la porte
-    const signGeometry = new THREE.BoxGeometry(2, 0.8, 0.1);
-    const sign = new THREE.Mesh(signGeometry, woodMaterial);
-    sign.position.set(gateCenterX, gatePostHeight + 0.6, gateCenterZ);
-    sign.rotation.y = perpAngle;
-    sign.castShadow = true;
-    scene.add(sign);
+    // Fond en bois
+    const signBackGeometry = new THREE.BoxGeometry(2, 0.8, 0.1);
+    const signBack = new THREE.Mesh(signBackGeometry, woodMaterial);
+    signBack.position.set(gateCenterX, gatePostHeight + 0.6, gateCenterZ);
+    signBack.rotation.y = perpAngle + Math.PI / 2;
+    signBack.castShadow = true;
+    scene.add(signBack);
+    
+    // Image du panneau (légèrement devant)
+    const signImageGeometry = new THREE.BoxGeometry(1.9, 0.7, 0.05);
+    const signTexture = new THREE.TextureLoader().load('media/panneau.png');
+    signTexture.colorSpace = THREE.SRGBColorSpace;
+    const signImageMaterial = new THREE.MeshStandardMaterial({
+        map: signTexture,
+        roughness: 0.7,
+        metalness: 0
+    });
+    const signImage = new THREE.Mesh(signImageGeometry, signImageMaterial);
+    // Calculer la position légèrement devant le fond
+    const offsetDistance = 0.08;
+    const offsetAngle = perpAngle + Math.PI / 2;
+    signImage.position.set(
+        gateCenterX + Math.cos(offsetAngle) * offsetDistance,
+        gatePostHeight + 0.6,
+        gateCenterZ + Math.sin(offsetAngle) * offsetDistance
+    );
+    signImage.rotation.y = perpAngle + Math.PI / 2;
+    signImage.castShadow = true;
+    scene.add(signImage);
 }
 
 function createTreesAround(scene) {
@@ -209,7 +232,7 @@ function createBoundaryCylinder(scene) {
     const texture = new THREE.TextureLoader().load('media/fond_ecran.png');
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.ClampToEdgeWrapping;
-    texture.repeat.set(1, 1);
+    texture.repeat.set(-1, 1);
     texture.offset.set(0, 0);
     texture.colorSpace = THREE.SRGBColorSpace;
     
