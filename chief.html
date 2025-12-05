@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Direction - MonkeyTown</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Happy+Monkey&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Happy Monkey', cursive;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    #video-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+
+    #intro-video {
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+    }
+
+    #main-content {
+      display: none;
+      width: 100%;
+      max-width: 1200px;
+      padding: 2rem;
+    }
+
+    #main-content.active {
+      display: block;
+    }
+
+    .btn-back {
+      position: fixed;
+      top: 2rem;
+      left: 2rem;
+      z-index: 100;
+    }
+
+    .btn-back .icon {
+      width: 3.5rem;
+      height: 3.5rem;
+      border-radius: 50%;
+      background: white;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+    }
+
+    .btn-back .icon:hover {
+      background: #f3f4f6;
+      transform: scale(1.1);
+    }
+
+    .btn-back .tooltip {
+      position: absolute;
+      top: 4rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: black;
+      color: white;
+      font-size: 0.875rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.75rem;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .btn-back:hover .tooltip {
+      opacity: 1;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+      color: white;
+    }
+
+    .header h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .header p {
+      font-size: 1.25rem;
+      opacity: 0.9;
+    }
+
+    .huts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .hut-card-info {
+      background: white;
+      border-radius: 1rem;
+      padding: 2rem;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      transition: all 0.3s;
+      position: relative;
+      border: 3px solid transparent;
+      cursor: pointer;
+    }
+
+    .hut-card-info:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+    }
+
+    .hut-card-info.visited {
+      background: linear-gradient(135deg, #a8e063 0%, #56ab2f 100%);
+      color: white;
+      border-color: #56ab2f;
+    }
+
+    .hut-card-info .icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    .hut-card-info h3 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .hut-card-info p {
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    .hut-card-info .checkmark {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      font-size: 2rem;
+      display: none;
+    }
+
+    .hut-card-info.visited .checkmark {
+      display: block;
+    }
+
+    .progress-section {
+      background: white;
+      border-radius: 1rem;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 2rem;
+      background: #e5e7eb;
+      border-radius: 1rem;
+      overflow: hidden;
+      position: relative;
+      margin-top: 1rem;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #56ab2f 0%, #a8e063 100%);
+      transition: width 0.5s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+    }
+
+    #final-video-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      cursor: pointer;
+    }
+
+    #final-video-container.active {
+      display: flex;
+    }
+
+    #final-video {
+      max-width: 100%;
+      max-height: 100%;
+      cursor: default;
+    }
+
+    .skip-final-video {
+      position: absolute;
+      top: 2rem;
+      right: 2rem;
+      background: rgba(255, 255, 255, 0.9);
+      color: #333;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      z-index: 1001;
+      border: none;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      transition: all 0.3s;
+    }
+
+    .skip-final-video:hover {
+      background: white;
+      transform: scale(1.05);
+    }
+
+    .fade-in {
+      animation: fadeIn 0.5s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- Bouton retour -->
+<a href="index.html" class="btn-back">
+  <div class="icon">
+    🛖
+    <span class="tooltip">Sortir de la hutte</span>
+  </div>
+</a>
+
+<!-- Conteneur vidéo d'introduction -->
+<div id="video-container">
+  <video id="intro-video" autoplay muted>
+    <source src="media/MonkeyTown.webm" type="video/webm">
+    Votre navigateur ne supporte pas la vidéo.
+  </video>
+</div>
+
+<!-- Contenu principal -->
+<div id="main-content">
+  <div class="header fade-in">
+    <h1>👑 Direction de MonkeyTown</h1>
+    <p>Cliquez sur chaque hutte pour les valider et débloquer la vidéo finale !</p>
+  </div>
+
+  <!-- Section de progression -->
+  <div class="progress-section fade-in">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h2 style="font-size: 1.5rem; margin: 0;">Progression</h2>
+      <button onclick="resetProgress()" style="padding: 0.5rem 1rem; background: #ef4444; color: white; border: none; border-radius: 0.5rem; cursor: pointer; font-family: 'Happy Monkey', cursive; font-size: 0.875rem; transition: all 0.3s;">
+        🔄 Réinitialiser
+      </button>
+    </div>
+    <p id="progress-text" style="margin-bottom: 0.5rem;">0 huttes visitées sur 4</p>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width: 0%;">0%</div>
+    </div>
+  </div>
+
+  <!-- Grille des huttes (non cliquables, juste informatif) -->
+  <div class="huts-grid fade-in">
+    <div class="hut-card-info" data-hut="forge">
+      <span class="checkmark">✅</span>
+      <span class="icon">⚒️</span>
+      <h3>Forge</h3>
+      <p>Atelier de réparation PC</p>
+    </div>
+
+    <div class="hut-card-info" data-hut="languages">
+      <span class="checkmark">✅</span>
+      <span class="icon">💬</span>
+      <h3>École de Langues</h3>
+      <p>Alternatives libres</p>
+    </div>
+
+    <div class="hut-card-info" data-hut="music">
+      <span class="checkmark">✅</span>
+      <span class="icon">🎵</span>
+      <h3>École de Musique</h3>
+      <p>Histoire du numérique</p>
+    </div>
+  </div>
+
+  <!-- Bouton retour au village -->
+  <div style="text-align: center; margin-top: 2rem;">
+    <a href="index.html" style="display: inline-block; padding: 1rem 2rem; background: white; color: #667eea; font-size: 1.25rem; font-weight: bold; text-decoration: none; border-radius: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: all 0.3s;">
+      🛖 Retourner au village
+    </a>
+  </div>
+</div>
+
+<!-- Conteneur vidéo finale -->
+<div id="final-video-container">
+  <button class="skip-final-video" onclick="closeFinalVideo()">✕ Passer</button>
+  <video id="final-video" controls autoplay>
+    <source src="media/fin.webm" type="video/webm">
+    Votre navigateur ne supporte pas la vidéo.
+  </video>
+</div>
+
+<script>
+  // Mapping des huttes avec leurs URLs
+  // Liste des huttes à visiter (sans crédit)
+  const requiredHuts = ['forge', 'languages', 'music'];
+  const totalHuts = requiredHuts.length;
+  let visitedHuts = new Set();
+
+  // Charger les huttes visitées depuis localStorage
+  function loadVisitedHuts() {
+    const saved = localStorage.getItem('visitedHuts');
+    console.log('Chief.html - Chargement des huttes visitées:', saved);
+    if (saved) {
+      visitedHuts = new Set(JSON.parse(saved));
+      console.log('Chief.html - Huttes visitées chargées:', [...visitedHuts]);
+    } else {
+      console.log('Chief.html - Aucune hutte visitée trouvée');
+    }
+    updateUI();
+  }
+
+  // Sauvegarder les huttes visitées
+  function saveVisitedHuts() {
+    localStorage.setItem('visitedHuts', JSON.stringify([...visitedHuts]));
+  }
+
+  // Mettre à jour l'interface
+  function updateUI() {
+    // Compter seulement les huttes requises
+    const visitedRequiredHuts = requiredHuts.filter(hut => visitedHuts.has(hut));
+    const visitedCount = visitedRequiredHuts.length;
+    const percentage = Math.round((visitedCount / totalHuts) * 100);
+
+    // Mettre à jour la progression
+    document.getElementById('progress-text').textContent = 
+      `${visitedCount} hutte${visitedCount > 1 ? 's' : ''} visitée${visitedCount > 1 ? 's' : ''} sur ${totalHuts}`;
+    document.getElementById('progress-fill').style.width = percentage + '%';
+    document.getElementById('progress-fill').textContent = percentage + '%';
+
+    // Marquer les huttes visitées
+    visitedHuts.forEach(hutId => {
+      const card = document.querySelector(`[data-hut="${hutId}"]`);
+      if (card) {
+        card.classList.add('visited');
+      }
+    });
+
+    // Si toutes les huttes requises sont visitées, afficher la vidéo finale
+    if (visitedCount === totalHuts) {
+      setTimeout(showFinalVideo, 1000);
+    }
+  }
+
+  // Afficher la vidéo finale
+  function showFinalVideo() {
+    // Vérifier si la vidéo finale a déjà été vue
+    const finalVideoSeen = sessionStorage.getItem('finalVideoSeen');
+    
+    if (finalVideoSeen) {
+      console.log('Vidéo finale déjà vue dans cette session');
+      return;
+    }
+    
+    const finalVideoContainer = document.getElementById('final-video-container');
+    finalVideoContainer.classList.add('active');
+
+    const finalVideo = document.getElementById('final-video');
+    
+    // Marquer comme vue quand la vidéo se termine
+    finalVideo.addEventListener('ended', () => {
+      closeFinalVideo();
+    });
+    
+    // Permettre de fermer la vidéo en cliquant sur le fond noir (pas sur la vidéo)
+    finalVideoContainer.addEventListener('click', (e) => {
+      if (e.target === finalVideoContainer) {
+        closeFinalVideo();
+      }
+    });
+  }
+
+  // Fonction pour fermer la vidéo finale
+  function closeFinalVideo() {
+    const finalVideoContainer = document.getElementById('final-video-container');
+    finalVideoContainer.classList.remove('active');
+    sessionStorage.setItem('finalVideoSeen', 'true');
+    
+    const finalVideo = document.getElementById('final-video');
+    finalVideo.pause();
+  }
+
+  // Réinitialiser la progression (optionnel)
+  function resetProgress() {
+    if (confirm('Voulez-vous réinitialiser votre progression ? Toutes les huttes visitées seront marquées comme non visitées.')) {
+      visitedHuts.clear();
+      localStorage.removeItem('visitedHuts');
+      sessionStorage.removeItem('introVideoSeen');
+      sessionStorage.removeItem('finalVideoSeen');
+      document.querySelectorAll('.hut-card-info').forEach(card => {
+        card.classList.remove('visited');
+      });
+      updateUI();
+      // Rediriger vers l'index après réinitialisation
+      window.location.href = 'index.html';
+    }
+  }
+
+  // Gestion du clic sur les huttes (validation sans redirection)
+  document.querySelectorAll('.hut-card-info').forEach(card => {
+    card.addEventListener('click', function() {
+      const hutId = this.getAttribute('data-hut');
+      
+      if (hutId) {
+        console.log(`Validation de la hutte ${hutId}`);
+        
+        // Marquer la hutte comme visitée
+        visitedHuts.add(hutId);
+        saveVisitedHuts();
+        
+        // Mettre à jour l'interface
+        updateUI();
+        
+        // Feedback visuel
+        this.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+          this.style.transform = '';
+        }, 200);
+      }
+    });
+  });
+
+  // Gestion de la vidéo d'introduction
+  const introVideo = document.getElementById('intro-video');
+  const videoContainer = document.getElementById('video-container');
+  const mainContent = document.getElementById('main-content');
+
+  // Vérifier si la vidéo d'intro a déjà été vue
+  const introSeen = sessionStorage.getItem('introVideoSeen');
+  
+  if (introSeen) {
+    // Si déjà vue dans cette session, passer directement au contenu
+    videoContainer.style.display = 'none';
+    mainContent.classList.add('active');
+  } else {
+    // Première visite de la session, jouer la vidéo
+    introVideo.addEventListener('ended', () => {
+      videoContainer.style.display = 'none';
+      mainContent.classList.add('active');
+      sessionStorage.setItem('introVideoSeen', 'true');
+    });
+
+    // Permettre de passer la vidéo en cliquant dessus
+    introVideo.addEventListener('click', () => {
+      videoContainer.style.display = 'none';
+      mainContent.classList.add('active');
+      sessionStorage.setItem('introVideoSeen', 'true');
+    });
+  }
+
+  // Charger les huttes visitées au démarrage
+  loadVisitedHuts();
+
+  // Marquer la hutte "direction" comme visitée au premier passage
+  document.addEventListener('DOMContentLoaded', () => {
+    visitedHuts.add('direction');
+    saveVisitedHuts();
+  });
+</script>
+
+</body>
+</html>
