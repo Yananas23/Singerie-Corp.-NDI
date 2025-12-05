@@ -195,7 +195,7 @@ export function createVillageHuts(scene) {
         { x: 8, z: 8, color: 0xDAA520, name: 'Forge', url: 'games/pc-upgrade.html', showPopup: true, logo: '⚒️' },
         { x: -8, z: 8, color: 0xD2691E, name: 'Ecole de Langues', url: 'games/alternatives.html', showPopup: true, logo: '💬' },
         { x: 8, z: -8, color: 0xCD853F, name: 'Ecole de Musique', url: 'crt3d.html', showPopup: true, logo: '🎵' },
-        { x: -8, z: -8, color: 0xDAA520, name: 'Crédit', url: 'page4.html', showPopup: true, logo: '©' },
+        { x: -8, z: -8, color: 0xDAA520, name: 'Crédit', url: 'credits.html', showPopup: true, logo: '©' },
         { x: 12, z: 0, color: 0xD2691E, name: '', url: '#', showPopup: false, logo: '' },
         { x: -12, z: 0, color: 0xCD853F, name: '', url: '#', showPopup: false, logo: '' },
         { x: 0, z: 12, color: 0xDAA520, name: '', url: '#', showPopup: false, logo: '' },
