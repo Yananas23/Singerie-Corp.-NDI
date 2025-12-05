@@ -68,8 +68,18 @@ function createPalisade(scene) {
         metalness: 0
     });
     
+    // Définir l'angle de la porte d'entrée (face sud, vers z négatif)
+    const gateAngleStart = (Math.PI * 1.45); // Début de la porte
+    const gateAngleEnd = (Math.PI * 1.55);   // Fin de la porte
+    
     for (let i = 0; i < poleCount; i++) {
         const angle = (i / poleCount) * Math.PI * 2;
+        
+        // Sauter les pieux dans la zone de la porte
+        if (angle > gateAngleStart && angle < gateAngleEnd) {
+            continue;
+        }
+        
         const x = Math.cos(angle) * radius;
         const z = Math.sin(angle) * radius;
         
@@ -88,6 +98,49 @@ function createPalisade(scene) {
         tip.castShadow = true;
         scene.add(tip);
     }
+    
+    // Créer les poteaux de la porte (centrés sur l'angle de la porte)
+    const gatePostHeight = 4.5;
+    const gateWidth = 3.5;
+    const gateAngleCenter = (gateAngleStart + gateAngleEnd) / 2;
+    
+    // Calculer la position centrale de la porte
+    const gateCenterX = Math.cos(gateAngleCenter) * radius;
+    const gateCenterZ = Math.sin(gateAngleCenter) * radius;
+    
+    // Vecteur perpendiculaire pour espacer les poteaux
+    const perpAngle = gateAngleCenter - Math.PI / 2;
+    const offsetX = Math.cos(perpAngle) * (gateWidth / 2);
+    const offsetZ = Math.sin(perpAngle) * (gateWidth / 2);
+    
+    // Poteau gauche
+    const leftPostGeometry = new THREE.CylinderGeometry(0.25, 0.28, gatePostHeight, 12);
+    const leftPost = new THREE.Mesh(leftPostGeometry, woodMaterial);
+    leftPost.position.set(gateCenterX - offsetX, gatePostHeight/2, gateCenterZ - offsetZ);
+    leftPost.castShadow = true;
+    scene.add(leftPost);
+    
+    // Poteau droit
+    const rightPost = new THREE.Mesh(leftPostGeometry, woodMaterial);
+    rightPost.position.set(gateCenterX + offsetX, gatePostHeight/2, gateCenterZ + offsetZ);
+    rightPost.castShadow = true;
+    scene.add(rightPost);
+    
+    // Poutre horizontale au-dessus de la porte
+    const beamGeometry = new THREE.BoxGeometry(gateWidth + 0.5, 0.3, 0.3);
+    const beam = new THREE.Mesh(beamGeometry, woodMaterial);
+    beam.position.set(gateCenterX, gatePostHeight, gateCenterZ);
+    beam.rotation.y = perpAngle;
+    beam.castShadow = true;
+    scene.add(beam);
+    
+    // Panneau décoratif au-dessus de la porte
+    const signGeometry = new THREE.BoxGeometry(2, 0.8, 0.1);
+    const sign = new THREE.Mesh(signGeometry, woodMaterial);
+    sign.position.set(gateCenterX, gatePostHeight + 0.6, gateCenterZ);
+    sign.rotation.y = perpAngle;
+    sign.castShadow = true;
+    scene.add(sign);
 }
 
 function createTreesAround(scene) {
