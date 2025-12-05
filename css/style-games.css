@@ -1,0 +1,60 @@
+/* Arrière-plan général */
+body {
+  background-image: url("../media/Hutte.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Tooltip bouton retour */
+.tooltip {
+  opacity: 0;
+  transition: 0.2s;
+}
+
+.btn-back:hover .tooltip {
+  opacity: 1;
+}
+
+/* Barre de timer */
+.timer-container {
+  width: 200px;
+  height: 30px;
+  border: 2px solid #333;
+  border-radius: 15px;
+  overflow: hidden;
+  background-color: #f0f0f0;
+  position: relative;
+}
+
+.timer-fill {
+  height: 100%;
+  background: green;
+  background-size: cover;
+  width: 100%;
+  transition: width 0.1s linear;
+}
+
+.timer-left {
+  background: red; 
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scaleX(1); }
+  50% { transform: scaleX(1.05); }
+}
+
+/* Compteur score */
+#score {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Effet machine à écrire pour le texte */
+.typewriter {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+}
