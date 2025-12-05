@@ -327,27 +327,17 @@ function onMouseMove(event) {
         );
         const pos = toScreenPosition({ position: tempVector, updateMatrixWorld: () => {}, matrixWorld: new THREE.Matrix4().setPosition(tempVector) }, camera, renderer);
         
-        // Afficher la popup avec offset adaptatif
+        // Afficher la popup en haut à droite
         popupElement.style.display = 'block';
         
-        // Calculer l'offset vertical adaptatif
-        const offsetY = window.innerWidth < 480 ? 50 : window.innerWidth < 768 ? 65 : 80;
+        // Position fixe en haut à droite avec marge responsive
+        const marginTop = window.innerWidth < 480 ? '10px' : window.innerWidth < 768 ? '15px' : '20px';
+        const marginRight = window.innerWidth < 480 ? '10px' : window.innerWidth < 768 ? '15px' : '20px';
         
-        popupElement.style.left = pos.x + 'px';
-        popupElement.style.top = (pos.y - offsetY) + 'px';
-        popupElement.style.transform = 'translateX(-50%)';
-        
-        // S'assurer que la popup reste dans l'écran
-        requestAnimationFrame(() => {
-            const popupRect = popupElement.getBoundingClientRect();
-            if (popupRect.left < 10) {
-                popupElement.style.left = (popupRect.width / 2 + 10) + 'px';
-                popupElement.style.transform = 'translateX(0)';
-            } else if (popupRect.right > window.innerWidth - 10) {
-                popupElement.style.left = (window.innerWidth - popupRect.width / 2 - 10) + 'px';
-                popupElement.style.transform = 'translateX(-100%)';
-            }
-        });
+        popupElement.style.left = 'auto';
+        popupElement.style.right = marginRight;
+        popupElement.style.top = marginTop;
+        popupElement.style.transform = 'none';
         
         // Mettre à jour le texte
         const textElement = popupElement.querySelector('.popup-text');
@@ -389,37 +379,7 @@ function animate() {
         scene.userData.animations.forEach(anim => anim());
     }
     
-    // Mettre à jour la position de la popup si une hutte est survolée
-    if (currentHoveredHut && popupElement.style.display !== 'none') {
-        const tempVector = new THREE.Vector3(
-            currentHoveredHut.position.x,
-            currentHoveredHut.userData.hutType === 'central' ? 10 : 6,
-            currentHoveredHut.position.z
-        );
-        const pos = toScreenPosition({ 
-            position: tempVector, 
-            updateMatrixWorld: () => {}, 
-            matrixWorld: new THREE.Matrix4().setPosition(tempVector) 
-        }, camera, renderer);
-        
-        // Calculer l'offset vertical adaptatif
-        const offsetY = window.innerWidth < 480 ? 50 : window.innerWidth < 768 ? 65 : 80;
-        
-        popupElement.style.left = pos.x + 'px';
-        popupElement.style.top = (pos.y - offsetY) + 'px';
-        
-        // S'assurer que la popup reste dans l'écran
-        requestAnimationFrame(() => {
-            const popupRect = popupElement.getBoundingClientRect();
-            if (popupRect.left < 10) {
-                popupElement.style.left = (popupRect.width / 2 + 10) + 'px';
-                popupElement.style.transform = 'translateX(0)';
-            } else if (popupRect.right > window.innerWidth - 10) {
-                popupElement.style.left = (window.innerWidth - popupRect.width / 2 - 10) + 'px';
-                popupElement.style.transform = 'translateX(-100%)';
-            }
-        });
-    }
+    // La popup reste en position fixe en haut à droite, pas besoin de mise à jour
 
     controls.update();
     
