@@ -1,0 +1,349 @@
+/* Arrière-plan général */
+body {
+  font-family: 'Happy Monkey', 'Comic Sans MS', cursive;
+  background-image: url("../media/Hutte.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Tooltip bouton retour */
+.tooltip {
+  opacity: 0;
+  transition: 0.2s;
+}
+
+.btn-back:hover .tooltip {
+  opacity: 1;
+}
+
+/* Ordinateur visuel */
+.computer-case {
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  min-height: 300px;
+  background: linear-gradient(145deg, #2c3e50, #34495e);
+  border-radius: 20px;
+  border: 4px solid #1a252f;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.computer-case::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  border: 2px solid #4a5f7f;
+  border-radius: 15px;
+  pointer-events: none;
+}
+
+/* Écran d'ordinateur */
+.monitor {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  aspect-ratio: 16 / 10;
+  background: linear-gradient(to bottom, #1a1a1a, #2a2a2a);
+  border-radius: 15px 15px 5px 5px;
+  border: 8px solid #333;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  position: relative;
+  overflow: hidden;
+}
+
+@media (max-width: 640px) {
+  .monitor {
+    border: 4px solid #333;
+  }
+}
+
+.monitor-screen {
+  width: 100%;
+  height: 100%;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Courier New', monospace;
+  color: #00ff00;
+  padding: 20px;
+  text-align: center;
+}
+
+.monitor-stand {
+  width: 120px;
+  height: 40px;
+  background: linear-gradient(to bottom, #444, #333);
+  margin: 0 auto;
+  border-radius: 0 0 10px 10px;
+}
+
+/* Slots RAM */
+.ram-slots {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  justify-content: center;
+  padding: 12px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 10px;
+  margin: 15px;
+  flex-wrap: nowrap;
+}
+
+@media (max-width: 640px) {
+  .ram-slots {
+    gap: 8px;
+    padding: 10px;
+    margin: 10px;
+  }
+}
+
+.ram-slot {
+  width: 70px;
+  height: 130px;
+  background: linear-gradient(to bottom, #1a1a1a, #2a2a2a);
+  border: 3px solid #444;
+  border-radius: 8px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .ram-slot {
+    width: 60px;
+    height: 110px;
+  }
+}
+
+.ram-slot:hover {
+  border-color: #00ff88;
+  box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+  transform: scale(1.05);
+}
+
+.ram-slot.filled {
+  background: linear-gradient(to bottom, #00aa44, #008833);
+  border-color: #00ff88;
+  position: relative;
+}
+
+.ram-slot.filled::after {
+  content: '❌';
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 24px;
+  height: 24px;
+  background: #ff4444;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s;
+  z-index: 10;
+}
+
+.ram-slot.filled:hover::after {
+  opacity: 1;
+}
+
+.ram-slot.empty {
+  background: linear-gradient(to bottom, #3a3a3a, #2a2a2a);
+}
+
+.ram-stick {
+  width: 60px;
+  height: 120px;
+  background: linear-gradient(to right, #00cc55, #00aa44);
+  border-radius: 5px;
+  border: 2px solid #00ff88;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  padding: 5px;
+  box-shadow: 0 4px 10px rgba(0,255,136,0.3);
+}
+
+.ram-chip {
+  width: 50px;
+  height: 15px;
+  background: #222;
+  border-radius: 2px;
+  border: 1px solid #444;
+}
+
+/* Barrette de RAM draggable */
+.ram-inventory {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(70px, 80px));
+  gap: 15px;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(255,255,255,0.9);
+  border-radius: 15px;
+  margin: 15px;
+  max-width: 100%;
+}
+
+@media (max-width: 640px) {
+  .ram-inventory {
+    grid-template-columns: repeat(auto-fit, minmax(60px, 70px));
+    gap: 10px;
+    padding: 15px;
+    margin: 10px;
+  }
+}
+
+.draggable-ram {
+  width: 100%;
+  aspect-ratio: 4 / 7;
+  max-width: 80px;
+  cursor: grab;
+  transition: all 0.3s;
+  position: relative;
+}
+
+@media (max-width: 640px) {
+  .draggable-ram {
+    max-width: 70px;
+  }
+}
+
+.draggable-ram:active {
+  cursor: grabbing;
+  transform: scale(1.1);
+}
+
+.draggable-ram .ram-stick {
+  width: 100%;
+  height: 100%;
+}
+
+/* Boutons OS */
+.os-button {
+  padding: 20px 40px;
+  font-size: 1.2rem;
+  border-radius: 15px;
+  border: 3px solid;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-weight: bold;
+  min-width: 200px;
+}
+
+.os-button.windows {
+  background: linear-gradient(145deg, #0078d4, #0063b1);
+  border-color: #005a9e;
+  color: white;
+}
+
+.os-button.windows:hover {
+  background: linear-gradient(145deg, #0063b1, #005a9e);
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(0, 120, 212, 0.4);
+}
+
+.os-button.linux {
+  background: linear-gradient(145deg, #ff6b00, #e85d00);
+  border-color: #cc5000;
+  color: white;
+}
+
+.os-button.linux:hover {
+  background: linear-gradient(145deg, #e85d00, #cc5000);
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(255, 107, 0, 0.4);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.blink {
+  animation: blink 1s infinite;
+}
+
+/* Progression */
+.progress-bar {
+  width: 100%;
+  height: 30px;
+  background: #ddd;
+  border-radius: 15px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00ff88, #00cc55);
+  width: 0%;
+  transition: width 0.5s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+}
+
+/* Messages */
+.message {
+  padding: 15px 25px;
+  border-radius: 10px;
+  margin: 10px 0;
+  font-weight: bold;
+  text-align: center;
+}
+
+.message.success {
+  background: #d4edda;
+  color: #155724;
+  border: 2px solid #c3e6cb;
+}
+
+.message.error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 2px solid #f5c6cb;
+}
+
+.message.info {
+  background: #d1ecf1;
+  color: #0c5460;
+  border: 2px solid #bee5eb;
+}
+
+/* Terminal effect */
+.terminal-text {
+  font-family: 'Courier New', monospace;
+  color: #00ff00;
+  text-shadow: 0 0 10px rgba(0,255,0,0.5);
+  line-height: 1.8;
+}
