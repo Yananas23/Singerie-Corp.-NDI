@@ -5,7 +5,7 @@
 }
 
 body {
-    font-family: 'Comic Sans MS', 'Arial', sans-serif;
+    font-family: 'Happy Monkey', 'Comic Sans MS', cursive;
     overflow: hidden;
     background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 100%);
     cursor: default;
