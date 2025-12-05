@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Village Gaulois - Bienvenue chez Astérix et Obélix</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="canvas-container">
+        <div id="loading">
+            <div class="loading-content">
+                <h2>🐵 Chargement de MonkeyTown</h2>
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                </div>
+                <p class="loading-text">Construction des huttes...</p>
+            </div>
+        </div>
+        
+        <div id="info">
+            <h1>🐵 Village MonkeyTown</h1>
+            <p>Utilisez votre souris pour explorer le village !</p>
+        </div>
+        
+        <!-- Popup HTML pour les huttes -->
+        <div id="hut-popup" class="hut-popup" style="display: none;">
+            <div class="popup-content">
+                <span class="popup-icon">👆</span>
+                <span class="popup-text">Cliquez pour entrer</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Map pour Three.js -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <!-- Script principal -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
